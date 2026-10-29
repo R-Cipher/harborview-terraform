@@ -34,4 +34,8 @@ resource "azurerm_log_analytics_workspace" "hub_logs" {
   sku                 = "PerGB2018"
   retention_in_days   = 365
   daily_quota_gb      = 1
+  tags = {
+    managed_by  = "terraform-pipeline"
+    environment = "lab"
+  }
 }
