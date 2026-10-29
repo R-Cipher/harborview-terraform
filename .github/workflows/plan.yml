@@ -1,0 +1,44 @@
+name: terraform-plan
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - "04-monitoring/**"
+      - ".github/workflows/plan.yml"
+
+permissions:
+  id-token: write   # lets the job request an OIDC token from GitHub
+  contents: read    # lets it check out the repo
+
+jobs:
+  plan:
+    runs-on: ubuntu-latest
+    env:
+        TF_VAR_subscription_id: cee5dd26-bb62-4ffb-a0f2-4dd79a84e939
+    defaults:
+      run:
+        working-directory: 04-monitoring
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: hashicorp/setup-terraform@v3
+
+      - name: Format check
+        run: terraform fmt -check -recursive
+
+      - name: Azure login (plan identity)
+        uses: azure/login@v2
+        with:
+          client-id: 574219ae-0442-4bf3-9d69-675eac225f4e
+          tenant-id: 0e46ccc9-dea6-436a-88ae-3aaa9971dcee
+          subscription-id: cee5dd26-bb62-4ffb-a0f2-4dd79a84e939
+
+      - name: Init
+        run: terraform init -input=false
+
+      - name: Validate
+        run: terraform validate
+
+      - name: Plan
+        run: terraform plan -input=false -lock=false
