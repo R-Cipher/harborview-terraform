@@ -41,4 +41,4 @@ jobs:
         run: terraform validate
 
       - name: Plan
-        run: terraform plan -input=false
+        run: terraform plan -input=false -lock=false
