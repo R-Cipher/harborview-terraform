@@ -1,0 +1,39 @@
+name: terraform-apply
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "04-monitoring/**"
+      - ".github/workflows/apply.yml"
+
+permissions:
+  id-token: write
+  contents: read
+
+jobs:
+  apply:
+    runs-on: ubuntu-latest
+    environment: harborview-apply
+    env:
+      TF_VAR_subscription_id: cee5dd26-bb62-4ffb-a0f2-4dd79a84e939
+    defaults:
+      run:
+        working-directory: 04-monitoring
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: hashicorp/setup-terraform@v3
+
+      - name: Azure login (apply identity)
+        uses: azure/login@v2
+        with:
+          client-id: a5c2d5f4-a07c-40c7-bdbc-0d5c21f58e01
+          tenant-id: 0e46ccc9-dea6-436a-88ae-3aaa9971dcee
+          subscription-id: cee5dd26-bb62-4ffb-a0f2-4dd79a84e939
+
+      - name: Init
+        run: terraform init -input=false
+
+      - name: Apply
+        run: terraform apply -input=false -auto-approve
